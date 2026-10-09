@@ -1,0 +1,148 @@
+"use client";
+
+import { isEmail, isPast, minLength, theSame } from "@/helpers/validators";
+// import { useCallback } from "react";
+import Input from "../UiElements/Input";
+import Button from "../UiElements/Button";
+import useForm from "@/hooks/useForm";
+import { loginUser } from "@/actions/users";
+import { useState } from "react";
+import { useUser } from "@/context/UserContext"; 
+import { useRouter } from "next/navigation"; 
+
+
+const SignUp = ({ login }) => {
+const { setUser } = useUser();     
+  const router = useRouter();
+const [errorMsg ,setErrorMsg] = useState('')
+const initialState = {
+  name: { value: "", isValid: false, touched: false },
+  email: { value: "", isValid: false, touched: false },
+  birthdate: { value: "", isValid: false, touched: false },
+  password: { value: "", isValid: false, touched: false },
+  passwordConfirm: { value: "", isValid: false, touched: false },
+};
+
+const formValidators = {
+  name: minLength,
+  email: isEmail,
+  birthdate: isPast,
+  password: minLength,
+  passwordConfirm: theSame,
+};
+
+if (login) {
+  delete formValidators['name'];
+  delete formValidators['birthdate'];
+  delete formValidators['passwordConfirm'];
+  delete initialState['name'];
+  delete initialState['birthdate'];
+  delete initialState['passwordConfirm'];
+}
+
+  const { formState, handleChange, handleTouch, formIsValid } = useForm({
+    initialState,
+    formValidators,
+  });
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (login) {
+      try {
+      const user = loginUser({
+        email: formState.email.value,
+        password: formState.password.value
+        })
+    setUser(user);
+    router.push('/')
+    console.log('sent');
+    } catch (error){
+      setErrorMsg(error.message || 'something went wrong');
+    };
+    } else {
+      // الـ sign up هنعمله بعدين
+    }
+  };
+
+  return (
+    <form>
+      <h3>{login ? 'Log into your account' : 'Create New Account'}</h3>
+      {!login && (
+        <Input
+        id="name"
+        type="text"
+        name="name"
+        label="Full Name"
+        placeholder="Write your full name"
+        errorText="Name should be at least 3 chars"
+        inputState={formState.name}
+        onChange={handleChange}
+        onBlur={handleTouch}
+        minLength={3}
+      />)}
+
+      <Input
+        id="email"
+        type="email"
+        name="email"
+        label="Your Email"
+        placeholder="write an exist email"
+        errorText="Please provide a valid email"
+        inputState={formState.email}
+        onChange={handleChange}
+        onBlur={handleTouch}
+      />
+
+      {!login && (
+        <Input
+        id="birthdate"
+        type="date"
+        name="birthdate"
+        label="Birthdate"
+        errorText="Please provide a valid birthdate"
+        inputState={formState.birthdate}
+        onChange={handleChange}
+        onBlur={handleTouch}
+      />)}
+
+      <Input
+        id="password"
+        type="password"
+        name="password"
+        label="Password"
+        errorText="Password should be at least 6 chars"
+        placeholder="***********"
+        inputState={formState.password}
+        onChange={handleChange}
+        onBlur={handleTouch}
+        minLength={6}
+      />
+
+      {!login && (
+        <Input
+        id="passwordConfirm"
+        type="password"
+        name="passwordConfirm"
+        label="Password Confirm"
+        errorText="Passwords are not the same"
+        placeholder="***********"
+        inputState={formState.passwordConfirm}
+        onChange={handleChange}
+        onBlur={handleTouch}
+      />
+      )}
+
+      <Button  onClick={handleSubmit}>
+        {login ? 'Login' : 'Sign Up'}
+      </Button>
+      {errorMsg && (
+        <p onClick={() => setErrorMsg('')} style={{ cursor: "pointer" }}>
+          {errorMsg}
+        </p>
+      )
+      }
+    </form>
+  );
+};
+export default SignUp;
