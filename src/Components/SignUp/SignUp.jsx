@@ -55,13 +55,14 @@ if (login) {
         password: formState.password.value
         })
     setUser(user);
+    localStorage.setItem('user', JSON.stringify(user));
     router.push('/')
     console.log('sent');
     } catch (error){
       setErrorMsg(error.message || 'something went wrong');
     };
     } else {
-      // الـ sign up هنعمله بعدين
+
     }
   };
 

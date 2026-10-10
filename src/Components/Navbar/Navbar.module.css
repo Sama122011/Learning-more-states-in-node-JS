@@ -73,6 +73,19 @@
   display: flex;
 }
 
+.logout-btn {
+  background: none;
+  border: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  padding: 0;
+  transition: var(--transition);
+}
+
+.logout-btn:hover {
+  color: var(--white);
+}
 @media (min-width: 767px) {
   .nav-bar {
     padding-left: 20px;

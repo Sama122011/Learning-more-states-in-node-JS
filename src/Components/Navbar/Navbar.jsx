@@ -5,6 +5,8 @@ import NavLink from "./NavLink";
 import { useState } from "react";
 import { useTheme } from "@/context/ThemeContext";
 import { IoSunnyOutline } from "react-icons/io5";
+import { useRouter } from "next/navigation";
+import { useUser } from "@/context/UserContext";
 
 import classes from "./Navbar.module.css";
 import { FaMoon } from "react-icons/fa";
@@ -15,6 +17,17 @@ export default function Navbar() {
 
   const toggleNavList = () => setShowNavList(!showNavList);
   const hideNavList = () => setShowNavList(false);
+
+  const { user, setUser } = useUser();               
+  const router = useRouter();                        
+
+
+  const handleLogout = () => {
+    setUser(null);
+    localStorage.removeItem("user");
+    hideNavList();
+    router.push("/login");
+  };
 
   return (
     <nav className={classes["nav-bar"]}>
@@ -35,8 +48,16 @@ export default function Navbar() {
         <NavLink href="/blog" text="Blog" hideNavList={hideNavList} />
         <NavLink href="/about" text="About" hideNavList={hideNavList} />
         <NavLink href="/contacts" text="Contacts" hideNavList={hideNavList} />
-        <NavLink href="/sign-up" text="Signup" hideNavList={hideNavList} />
-        <NavLink href="/login" text="Login" hideNavList={hideNavList} />
+        {!user && <NavLink href="/sign-up" text="Signup" hideNavList={hideNavList} />}
+        {!user && <NavLink href="/login" text="Login" hideNavList={hideNavList} />}
+
+        {user && (
+          <li>
+           <button onClick={handleLogout} className={classes["logout-btn"]}>
+            Logout
+           </button>
+          </li>
+        )}
       </ul>
 
       <button
@@ -51,3 +72,4 @@ export default function Navbar() {
     </nav>
   );
 }
+// className={classes["logout-btn"]}
